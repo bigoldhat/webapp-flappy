@@ -57,7 +57,7 @@ app.send("/score", function(request, response) {
 });
 
 /* The server then listens on port 8080 for any new connections.*/
-var server = app.listen(8080, function() {
+var server = app.listen((process.env.PORT || 8080), function() {
     /* For convenience, information about this is printed to the console.*/
     var host = server.address().address;
     var port = server.address().port;
