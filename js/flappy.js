@@ -24,6 +24,16 @@ var pipes = [];
 /* A new variable is created to dictate the difference in time between pipe stack generations. */
 var pipeInterval = 1.75;
 
+/* These variables have been drawn out from existing values in former implementations.*/
+var gameGravity = 200;
+var gameVelocity = -200;
+var jumpPower = 200;
+var pipeGap = 100;
+
+/* Bonuses are a new feature - these arrays store the sprites.*/
+var balloons = [];
+var weights =[];
+
 /* JQuery obtains the locally stored scores and prints them to the empty unordered list on the HTML page. */
 $.get("/score", function(data){
     console.log("received:", data);
@@ -40,6 +50,9 @@ function preload() {
     game.load.image("playerImg","../assets/flappy.png");
     game.load.image("pipe","../assets/pipe2-body.png");
     game.load.image("pipe-border","../assets/pipe2-body2.png");
+    game.load.image("pipe-end","../assets/pipe-end.png");
+    game.load.image("balloons","../assets/balloons.png");
+    game.load.image("weight","../assets/weight.png");
     /* Audio */
     game.load.audio("score", "../assets/point.ogg");
 }
@@ -64,6 +77,8 @@ function create() {
         {font: "30px Gloucester MT Extra Condensed", fill: "#777777"});
     /* A sprite is added and assigned to the player as an object. */
     player = game.add.sprite(80, 200, "playerImg");
+    /* The player's sprite is assigned an anchor, from which it can appear to rotate according to its trajectory. */
+    player.anchor.setTo(0.5, 0.5);
     /* Arcade Physics (alongside P2 physics, I think) are now-activated physics modules of the Phaser game engine. */
     game.physics.startSystem(Phaser.Physics.ARCADE);
     /* I think that the player is tied to the arcade physics modules.
@@ -71,7 +86,7 @@ function create() {
      * This conserves processing power. */
     game.physics.arcade.enable(player);
     /* A given player sprite at a standstill is accelerated by a simulated gravitational force. */
-    player.body.gravity.y = 200;
+    player.body.gravity.y = gameGravity;
     /* Pressing the spacebar will now cause the playerJump() function to run (causing the player to jump). */
     game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(playerJump);
 }
@@ -80,6 +95,36 @@ function update() {
     /* This line checks if at any point during gameplay there is an overlap between any pipe and player sprites.
      * If this is the case, the game will end. */
     game.physics.arcade .overlap(player, pipes, gameOver);
+    /* The people at CCA used the game's window's height and width here -
+     * to determine if the player had passed the bounds of the window.
+     * This was as follows:
+     * if(0 > player.body.y || player.body.y > width){
+     *     gameOver();
+     * }*/
+
+    /* Following this, rotation on the player sprite results by using the trigonometric functions in JS.*/
+    player.rotation = Math.atan(player.body.velocity.y / gameVelocity);
+
+    /* After every frame, if there is an intersection between a balloon or a weight, and the player sprite,
+    * the gravity should change to replicate a net vertical force change. */
+    checkBonus(balloons, -50);
+    checkBonus(weights, 50);
+}
+
+function checkBonus(bonusArray, bonusEffect) {
+    /* For each balloon item, if there is an intersection between a player sprite and the type of sprite in question, the player gets a bonus.
+     * That sprite is then removed, along with its reference in one of the arrays. */
+    // Step backwards in the array to avoid index errors from splice
+    for(var i=bonusArray.length - 1; i>=0; i--){
+        game.physics.arcade.overlap(player,bonusArray[i], function(){
+            // destroy sprite
+            bonusArray[i].destroy();
+            // remove element from array
+            bonusArray.splice(i,1);
+            // apply the bonus effect
+            changeGravity(bonusEffect);
+        });
+    }
 }
 
 function addPipeBlock(x, y, velocityOn) {
@@ -88,21 +133,42 @@ function addPipeBlock(x, y, velocityOn) {
         var pipe = game.add.sprite(x,y,"pipe");
         /* This pipe has physics enabled and moves towards the player at a simulated constant velocity. */
         game.physics.arcade.enable(pipe);
-        pipe.body.velocity.x = -200;
+        pipe.body.velocity.x = gameVelocity;
     } else {
         /* This pipe does have physics enabled.
          * The physics here is only for overlaps, not for velocities.*/
         var pipe = game.add.sprite(x,y,"pipe-border");
         game.physics.arcade.enable(pipe);
     }
-    /* I think that this adds the newly-created pipe to the list of pipe sprites. */
+    /* I think that this adds the newly-created pipe to the array of pipe sprites. */
     pipes.push(pipe);
 }
+
+/* The sprites for the ends of pipes are added here in a similar fashion. */
+function addPipeEnd(x, y) {
+    var pipe = game.add.sprite(x, y, "pipe-end");
+    pipes.push(pipe);
+    game.physics.arcade.enable(pipe);
+    block.body.velocity.x = -gameSpeed;
+}
+
+function generate(){
+    var diceRoll = game.rnd.integerInRange(1, 10);
+    if(diceRoll==1){
+        generateBalloons();
+    } else if(diceRoll==2){
+        generateWeight();
+    } else {
+        generatePipe();
+    }
+}
+
 
 function generatePipe() {
     /* A gap is needed in each column of pipes.
      * The place at which this starts is determined by a random number, and in CCA's example, this gap will be two blocks tall. */
-    var gapStart = game.rnd.integerInRange(1, 5);
+    /* The definition of the start of the gap has now changed.*/
+    var gapStart = game.rnd.integerInRange(50, height - 50 - pipeGap);
     /* For each of the eight places in a column available to put a block,
      * a block is placed at certain coordinates along the column if it is not earmarked for the gap. */
     for (var count = 0; count < 8; count++) {
