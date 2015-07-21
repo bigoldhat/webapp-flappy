@@ -1,0 +1,22 @@
+/* CSS (Cascading Style Sheets) enable HTML documents to be styled from a separate document.
+ * This means that the different main purposes of these two languages can be separated for clarity.
+ * IDs and Classes in HTML are referenced with # and @ in CSS and respectively.
+ * Classes and IDs are subtly different in ways that I can't describe simpler than https://css-tricks.com/ */
+
+#greeting {
+    /* The object effectively exists, but is invisible.
+     * This means that the high-score form is invisible until the game terminates to change this value. */
+    display: none;
+    /* The object is placed relative to the first non-static parent? */
+    position: absolute;
+    /* Various positionings, resizings and recolourings */
+    left: 40%;
+    top: 40%;
+    background: #fff;
+    width: 350px;
+    height: 270px;
+    /* Changes to the border and the padding (which is a bit like the border) */
+    border: 2px solid gray;
+    border-radius: 5px;
+    padding: 20px;
+}

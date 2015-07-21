@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<!-- By separating out details which need not feature in the main body of the document - I improve clarity. -->
+<head>
+    <!-- This title appears in taskbars and tabs -->
+    <title>A Levitating Partridge (game)</title>
+    <!-- This associates the CSS pages with the HTML document so that styles can be accessed from elements. -->
+    <link rel="stylesheet" href="../assets/style.css" />
+    <!-- Bootstrap is a widely used CSS file containing professional styles. -->
+    <link rel="stylesheet" href="../lib/bootstrap.css" />
+</head>
+
+<body>
+<!-- The container provides styling for the contents of the entire document. This is generally a box. -->
+<div class="container">
+    <!-- The title and subtitle which appear on the page itself is placed on a 'jumbotron' for styling emphasis. -->
+    <div class="jumbotron">
+        <!-- Contrary to the objective of fully separating out the style into a CSS document, some still remains.
+        By default, h1, h2, h3 and so on denote text with basic and graduated emphasis or disemphasis.
+         The amount of emphasis varies according to the number of the heading. -->
+        <h1>A Levitating Partridge (game)</h1>
+        <p>You are reading this.</p>
+    </div>
+    <div class="row">
+        <div class="col-xs-8">
+            <div id="game"> </div>
+        </div>
+        <div class="col-xs-4">
+            <!-- The high scores leaderboard is empty (an empty HTML unordered list), but can subsequently be filled with details.
+            From my guessing, this is done using JQuery. -->
+            <p>High Scores:</p>
+            <ul id="scoreBoard">
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <img src="../assets/screenshotStart.png"
+                 class="img-thumbnail img-responsive" />
+        </div>
+        <div class="col-md-4">
+            <img src="../assets/screenshot.png"
+                 class="img-thumbnail img-responsive" />
+        </div>
+        <div class="col-md-4">
+            <img src="../assets/screenshotOver.png"
+                 class="img-thumbnail img-responsive" />
+        </div>
+    </div>
+</div>
+
+<!-- The entire high-scores form is held within a separate container which is initially hidden until the game's end in JavaScript changes that.
+I feel that it is personally important to note that a hidden element in HTML is not only hidden from view but also non-interactive. -->
+<div id="greeting">
+    <h3>Save your score</h3>
+    <!-- A POST request is made within the HTML code.
+    When the button is clicked, the JQuery code is run to make a request and the website changes to the /score URL. -->
+    <form id="greeting-form" method="post" action="/score">
+        <div class="form-group">
+            <label for="fullName">Name: </label>
+            <!-- This form includes client-side validation to ensure that a name and email address are inserted, and also that an email given is of a correct format.-->
+            <input type="text" id="fullName"
+                   name="fullName" class="form-control" placeholder="Player1">
+
+            <label for="email">Email: </label>
+            <input type="email" id="email"
+                   name="email" class="form-control"
+                   placeholder="email@address.com">
+
+            <input type="hidden" id="score"
+                   name="score" value="0">
+        </div>
+        <button class="btn btn-default" type="submit">OK</button>
+        <button class="btn btn-default" type="button" onClick="window.location.reload()">Don't record & play again.</button>
+    </form>
+</div>
+<!-- The javascript scripts required for the entire page to run are added.
+The first one likely handles the form elements. -->
+<script src="../lib/jquery.js"></script>
+<!-- These two scripts combine to produce the game window and allow it to run. -->
+<script src="../lib/phaser.min.js"></script>
+<script src="../js/flappy.js"></script>
+</body>
+<!-- The end of the content (body) of the page has been reached, and so the document itself is also finished by current deduction. -->
+</html>
