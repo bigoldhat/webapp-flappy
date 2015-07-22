@@ -62,5 +62,5 @@ var server = app.listen((process.env.PORT || 5000), function() {
     var host = server.address().address;
     var port = server.address().port;
 
-    console.log("Bob's Flappy Bird listening at http://%s:%s", host, port);
+    console.log("This server is listening at http://%s:%s", host, port);
 });

@@ -1,6 +1,6 @@
 /* This is the game as (more-or-less) obtained from cambridgecoding (with annotations).
 
-/* I define a set of global variables before the game is created. */
+ /* I define a set of global variables before the game is created. */
 /* The first of these dictates the order by which the game Flys (I think). */
 var actions = { preload: preload, create: create, update: update };
 /* The game's height and width were once just used to define the size of the game window.
@@ -42,10 +42,15 @@ var balloons = [];
 var weights =[];
 var gravitySwitches = [];
 
-/* JQuery obtains the locally stored scores and prints them to the empty unordered list on the HTML page. */
+/* JQuery obtains the locally stored scores and prints them to the empty unordered list on the HTML page.
+* I did not realise that the function by which the sorting takes place, has to be predefined.*/
 $.get("/score", function(data){
     console.log("received:", data);
     var scores = JSON.parse(data);
+    scores.sort(function (scoreA, scoreB){
+        var difference = scoreB.score - scoreA.score;
+        return difference;
+    });
     for (var i = 0; i < scores.length; i++) {
         $("#scoreBoard").append("<li>" + scores[i].name + ": " +
             scores[i].score + "</li>");
@@ -62,6 +67,7 @@ function preload() {
     game.load.image("balloons","../assets/balloons.png");
     game.load.image("weight","../assets/weight.png");
     game.load.image("gravitySwitch", "../assets/gravitySwitch.png");
+    game.load.image("backgroundImg", "../assets/bg1.jpg");
     /* Audio */
     game.load.audio("score", "../assets/point.ogg");
 }
@@ -95,6 +101,7 @@ function create() {
     player.anchor.setTo(0.5, 0.5);
     /* Arcade Physics (alongside P2 physics, I think) are now-activated physics modules of the Phaser game engine. */
     game.physics.startSystem(Phaser.Physics.ARCADE);
+
     /* I think that the player is tied to the arcade physics modules.
      * This means that other sprites could be tied to more advanced physics modules, where necessary, such as P2.
      * This conserves processing power. */
@@ -120,7 +127,7 @@ function update() {
     player.rotation = Math.atan(-player.body.velocity.y / gameVelocity);
 
     /* After every frame, if there is an intersection between a balloon or a weight, and the player sprite,
-    * the gravity should change to replicate a net vertical force change. */
+     * the gravity should change to replicate a net vertical force change. */
     checkBonus(balloons, -50);
     checkBonus(weights, 50);
     checkBonus(gravitySwitches, 0);
@@ -140,7 +147,7 @@ function update() {
     } else if (gameGravity > INITIAL_gameGravity) {
         labelBonus.text.fontcolor = "#009900";
     } else {
-        labelBonus.text.fontcolor = "#000000";
+        labelBonus.text.fontcolor = "#777777";
     }
 }
 
@@ -242,7 +249,7 @@ function generateBonus(bonusType){
         gravitySwitches.push(bonus);
     }
     /* The sprite is added to the list of balloons; has physics enabled; is assigned the same velocity and gravity as the moving pipes...
-    and is assigned to move upwards or downwards of the screen at a psuedorandom velocity. */
+     and is assigned to move upwards or downwards of the screen at a psuedorandom velocity. */
     game.physics.arcade.enable(bonus);
     bonus.body.velocity.x = gameVelocity;
     if (bonusType == "balloons") {
